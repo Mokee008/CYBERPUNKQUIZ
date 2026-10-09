@@ -1,0 +1,34 @@
+{
+  "name": "quiz-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Production-style backend for a 30-question Web Development quiz game with question management and effect directives",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "vitest run --fileParallelism=false",
+    "test:watch": "vitest --fileParallelism=false",
+    "q:list": "node scripts/questions-cli.js list",
+    "q:add": "node scripts/questions-cli.js add",
+    "q:edit": "node scripts/questions-cli.js edit",
+    "q:delete": "node scripts/questions-cli.js delete",
+    "q:restore": "node scripts/questions-cli.js restore",
+    "q:validate": "node scripts/questions-cli.js validate",
+    "q:export": "node scripts/questions-cli.js export",
+    "q:import": "node scripts/questions-cli.js import"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "nanoid": "^5.0.9",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0",
+    "vitest": "^2.1.8"
+  }
+}

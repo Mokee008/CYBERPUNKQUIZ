@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CYBER_QUIZ 2077 // NIGHT CITY KNOWLEDGE MATRIX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/preview/effects.css" />
+</head>
+<body class="cyber-body">
+  <!-- Full-screen Canvas for Cyber Effects -->
+  <canvas id="canvas-overlay"></canvas>
+  <div id="flash-overlay"></div>
+  <div class="crt-scanlines"></div>
+
+  <div id="app-wrapper" class="app-wrapper">
+    <!-- Top Cyberpunk Bar -->
+    <header class="cyber-header">
+      <div class="brand-block">
+        <div class="brand-glitch" data-text="CYBER_QUIZ // 2077">CYBER_QUIZ // 2077</div>
+        <div class="sub-brand">NIGHT CITY KNOWLEDGE MATRIX v3.04</div>
+      </div>
+      <div class="header-controls">
+        <button id="mute-toggle" class="cyber-btn cyber-btn-small">AUDIO: OFF</button>
+        <button id="dev-panel-toggle" class="cyber-btn cyber-btn-small">SYS // FX</button>
+      </div>
+    </header>
+
+    <!-- VIEW 1: 5-SECTOR SELECTION WINDOW (MATRIX HUB) -->
+    <section id="sector-hub-view" class="cyber-view active">
+      <div class="hub-hero">
+        <div class="hud-tag">[ SELECT KNOWLEDGE PROTOCOL ]</div>
+        <h1 class="hub-title">CHOOSE YOUR TARGET SECTOR</h1>
+        <p class="hub-subtitle">Jack into specialized neural databases or launch full-spectrum matrix drills. Questions auto-generate dynamically.</p>
+        
+        <div class="player-config-bar">
+          <div class="config-item">
+            <label for="player-name-input">HANDLE:</label>
+            <input type="text" id="player-name-input" class="cyber-input" value="V_Netrunner" maxlength="24" />
+          </div>
+          <div class="config-item">
+            <label for="count-select">QUESTION COUNT:</label>
+            <select id="count-select" class="cyber-select">
+              <option value="5" selected>5 QUESTIONS (QUICK DIVE)</option>
+              <option value="10">10 QUESTIONS (STANDARD)</option>
+              <option value="20">20 QUESTIONS (EXTENDED)</option>
+              <option value="30">30 QUESTIONS (FULL MATRIX)</option>
+            </select>
+          </div>
+          <div class="config-action">
+            <button id="bulk-generate-btn" class="cyber-btn cyber-btn-magenta">
+              <span class="icon">⚡</span> SYNC & REFILL ALL SECTORS
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 Sector Cards Grid -->
+      <div id="sectors-grid" class="sectors-grid">
+        <!-- Rendered dynamically via preview.js -->
+        <div class="loading-terminal">INITIALIZING NEURAL SECTOR BUS...</div>
+      </div>
+
+      <!-- Cyber Terminal Log -->
+      <div class="cyber-terminal-card">
+        <div class="terminal-bar">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+          <span class="terminal-label">NETRUNNER // CONSOLE READOUT</span>
+        </div>
+        <div id="terminal-output" class="terminal-output">
+          <p class="log-line info">&gt; Neural connection established on port 3000.</p>
+          <p class="log-line success">&gt; 5 knowledge sectors online: CA, Healthcare, Programming, Agriculture, Biology.</p>
+          <p class="log-line prompt">&gt; Awaiting protocol engagement...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: ACTIVE QUIZ ARENA (HUD RUNNER) -->
+    <section id="quiz-arena-view" class="cyber-view">
+      <div class="arena-top-bar">
+        <button id="abort-btn" class="cyber-btn cyber-btn-small cyber-btn-red">&lt; ABORT TO HUB</button>
+        <div class="hud-sector-badge">
+          <span class="hud-sector-prefix">SECTOR:</span>
+          <span id="active-sector-tag" class="hud-sector-name">PROGRAMMING</span>
+        </div>
+        <div class="arena-stats">
+          <div class="stat-cell">
+            <span class="stat-lbl">PROGRESS</span>
+            <span class="stat-val"><span id="current-num">01</span>/<span id="total-q">10</span></span>
+          </div>
+          <div class="stat-cell">
+            <span class="stat-lbl">SCORE</span>
+            <span id="score-val" class="stat-val yellow">0</span>
+          </div>
+          <div class="stat-cell">
+            <span class="stat-lbl">STREAK</span>
+            <span id="streak-val" class="stat-val cyan">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Neon Timer Bar -->
+      <div class="timer-bracket">
+        <div class="timer-readout"><span id="timer-sec">20</span>s</div>
+        <div class="timer-track">
+          <div id="timer-fill" class="timer-fill"></div>
+        </div>
+      </div>
+
+      <!-- Question Cyber Deck Card -->
+      <main class="cyber-card question-card">
+        <div class="card-corner tl"></div>
+        <div class="card-corner tr"></div>
+        <div class="card-corner bl"></div>
+        <div class="card-corner br"></div>
+
+        <div class="question-header">
+          <span id="question-diff-badge" class="cyber-badge badge-medium">DIFF // MEDIUM</span>
+          <span id="question-id-badge" class="cyber-badge-id">ID: #042</span>
+        </div>
+
+        <h2 id="question-text" class="question-text">DECRYPTING PACKET STREAM...</h2>
+
+        <div id="options-container" class="options-grid"></div>
+
+        <div id="explanation-box" class="cyber-explanation"></div>
+        <div id="effect-banner" class="effect-banner"></div>
+
+        <div id="next-action-bar" class="next-action-bar" style="display: none;">
+          <button id="next-q-btn" class="cyber-btn cyber-btn-yellow next-btn">NEXT QUESTION &gt;&gt;</button>
+        </div>
+      </main>
+    </section>
+
+    <!-- VIEW 3: MISSION DEBRIEF (SUMMARY) -->
+    <section id="summary-view" class="cyber-view">
+      <div class="cyber-card summary-card">
+        <div class="card-corner tl"></div>
+        <div class="card-corner tr"></div>
+        <div class="card-corner bl"></div>
+        <div class="card-corner br"></div>
+
+        <div class="hud-tag">[ MISSION DEBRIEF // REPORT ]</div>
+        <h1 id="summary-title" class="summary-title">RUN COMPLETED</h1>
+
+        <div class="summary-metrics-grid">
+          <div class="metric-box">
+            <div class="metric-lbl">FINAL SCORE</div>
+            <div id="summary-score" class="metric-val yellow">0</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-lbl">ACCURACY</div>
+            <div id="summary-acc" class="metric-val cyan">0%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-lbl">BEST STREAK</div>
+            <div id="summary-streak" class="metric-val green">0</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-lbl">WEAKEST SECTOR</div>
+            <div id="summary-weakest" class="metric-val red">NONE</div>
+          </div>
+        </div>
+
+        <div id="summary-breakdown" class="sector-breakdown-list"></div>
+
+        <div class="summary-actions">
+          <button id="return-hub-btn" class="cyber-btn cyber-btn-yellow">RETURN TO SECTOR HUB</button>
+          <button id="play-again-btn" class="cyber-btn cyber-btn-cyan">RE-RUN PROTOCOL</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Developer Control Panel -->
+    <section id="dev-panel" class="dev-panel cyber-card">
+      <div class="dev-header">
+        <span class="dev-title">[ SYS_EFFECTS // DIRECTIVE TESTING ]</span>
+        <button onclick="document.getElementById('dev-panel').classList.remove('open')" class="cyber-btn-close">X</button>
+      </div>
+      <div class="dev-section">
+        <span class="dev-label cyan">NEURON BURST (CORRECT ANSWER):</span>
+        <div class="dev-btn-row">
+          <button class="cyber-btn cyber-btn-small" onclick="fireDevEffect('paper_burst', 1)">LV 1</button>
+          <button class="cyber-btn cyber-btn-small" onclick="fireDevEffect('paper_burst', 2)">LV 2</button>
+          <button class="cyber-btn cyber-btn-small" onclick="fireDevEffect('paper_burst', 3)">LV 3</button>
+          <button class="cyber-btn cyber-btn-small" onclick="fireDevEffect('paper_burst', 4)">LV 4</button>
+          <button class="cyber-btn cyber-btn-small" onclick="fireDevEffect('paper_burst', 5)">LV 5</button>
+        </div>
+      </div>
+      <div class="dev-section">
+        <span class="dev-label red">CYBER BLAST (WRONG / TIMEOUT):</span>
+        <div class="dev-btn-row">
+          <button class="cyber-btn cyber-btn-small" onclick="fireDevEffect('bomb_blast', 1)">LV 1</button>
+          <button class="cyber-btn cyber-btn-small" onclick="fireDevEffect('bomb_blast', 2)">LV 2</button>
+          <button class="cyber-btn cyber-btn-small" onclick="fireDevEffect('bomb_blast', 3)">LV 3</button>
+          <button class="cyber-btn cyber-btn-small" onclick="fireDevEffect('bomb_blast', 4)">LV 4</button>
+          <button class="cyber-btn cyber-btn-small" onclick="fireDevEffect('bomb_blast', 5)">LV 5</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="/preview/preview.js"></script>
+</body>
+</html>

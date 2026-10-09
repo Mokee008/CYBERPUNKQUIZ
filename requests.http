@@ -1,0 +1,181 @@
+### Atelier Quiz Game Backend — HTTP Request Collection
+@baseUrl = http://localhost:3000/api/v1
+@adminKey = atelier-secret-admin-key
+
+### 1. Health Check
+GET {{baseUrl}}/health
+
+### 2. Sectors Catalog (Knowledge Domains & Breakdowns)
+GET {{baseUrl}}/sectors
+
+### 3. Generate New Questions on Demand (No manual add/edit needed!)
+# Sector: CA (Chartered Accountancy)
+GET {{baseUrl}}/sectors/CA/generate?count=3
+
+### 4. Sector: Healthcare
+GET {{baseUrl}}/sectors/Healthcare/generate?count=3
+
+### 5. Sector: Programming
+GET {{baseUrl}}/sectors/Programming/generate?count=3
+
+### 6. Sector: Agriculture
+GET {{baseUrl}}/sectors/Agriculture/generate?count=3
+
+### 7. Sector: Biology
+GET {{baseUrl}}/sectors/Biology/generate?count=3
+
+### 8. Generate Questions via POST Payload (Any Sector)
+POST {{baseUrl}}/questions/generate
+Content-Type: application/json
+
+{
+  "sector": "Healthcare",
+  "count": 5,
+  "difficulty": "medium",
+  "persist": true
+}
+
+### 9. Bulk Generate Across ALL 5 Sectors in One Call
+POST {{baseUrl}}/sectors/generate-all
+Content-Type: application/json
+
+{
+  "countPerSector": 3,
+  "persist": true
+}
+
+### 10. Practice Micro-Quiz Question (Masked, zero answer leak)
+GET {{baseUrl}}/questions/practice?category=Biology&difficulty=medium
+
+### 11. Practice Question Answer Verification (With visual effect directive)
+POST {{baseUrl}}/questions/practice/verify
+Content-Type: application/json
+
+{
+  "questionId": 1,
+  "selectedIndex": 0
+}
+
+### 12. Start Game Session (With category/count options & dynamic question refresh)
+# @name startSession
+POST {{baseUrl}}/sessions
+Content-Type: application/json
+
+{
+  "playerName": "Alex",
+  "category": "CA",
+  "count": 5
+}
+
+### 6. Inspect Player History (Track seen questions for refresh)
+GET {{baseUrl}}/sessions/history?playerName=Alex
+
+### 7. Reset Player Question History
+POST {{baseUrl}}/sessions/reset-history
+Content-Type: application/json
+
+{
+  "playerName": "Alex"
+}
+
+### 8. Get Current Question (Masked - No answer fields)
+# Run request #2 first to populate sessionId
+@sessionId = {{startSession.response.body.sessionId}}
+GET {{baseUrl}}/sessions/{{sessionId}}/question
+
+### 4. Submit Answer (Question 1)
+POST {{baseUrl}}/sessions/{{sessionId}}/answer
+Content-Type: application/json
+
+{
+  "questionId": 1,
+  "selectedIndex": 1
+}
+
+### 5. Check Current Session State
+GET {{baseUrl}}/sessions/{{sessionId}}
+
+### 6. Get Summary (Only available after completing all 30 questions)
+GET {{baseUrl}}/sessions/{{sessionId}}/summary
+
+### 7. Leaderboard (Top 10)
+GET {{baseUrl}}/leaderboard
+
+###############################################################################
+# ADMIN QUESTION MANAGEMENT ENDPOINTS (Header: x-admin-key)
+###############################################################################
+
+### 8. Admin: Get Stats & Distribution Warnings
+GET {{baseUrl}}/admin/stats
+x-admin-key: {{adminKey}}
+
+### 9. Admin: List All Questions (with filters)
+GET {{baseUrl}}/admin/questions?category=HTML&active=true
+x-admin-key: {{adminKey}}
+
+### 10. Admin: Get Single Question by ID
+GET {{baseUrl}}/admin/questions/1
+x-admin-key: {{adminKey}}
+
+### 11. Admin: Add New Question (ID auto-assigned)
+POST {{baseUrl}}/admin/questions
+x-admin-key: {{adminKey}}
+Content-Type: application/json
+
+{
+  "category": "HTML",
+  "difficulty": "easy",
+  "question": "Which HTML element represents an abbreviation or acronym?",
+  "options": [
+    "<abbr>",
+    "<acronym>",
+    "<short>",
+    "<summary>"
+  ],
+  "correctIndex": 0,
+  "explanation": "The <abbr> tag represents an abbreviation or acronym, with the optional title attribute providing the expansion.",
+  "active": true
+}
+
+### 12. Admin: Partial Update (PATCH)
+PATCH {{baseUrl}}/admin/questions/1
+x-admin-key: {{adminKey}}
+Content-Type: application/json
+
+{
+  "difficulty": "easy"
+}
+
+### 13. Admin: Soft Delete Question (Safe: blocked if active < 30 unless ?force=true)
+DELETE {{baseUrl}}/admin/questions/31
+x-admin-key: {{adminKey}}
+
+### 14. Admin: Restore Deactivated Question
+POST {{baseUrl}}/admin/questions/31/restore
+x-admin-key: {{adminKey}}
+
+### 15. Admin: Export Entire Question Bank
+GET {{baseUrl}}/admin/questions/export
+x-admin-key: {{adminKey}}
+
+### 16. Admin: Bulk Add Questions (All-or-Nothing)
+POST {{baseUrl}}/admin/questions/bulk
+x-admin-key: {{adminKey}}
+Content-Type: application/json
+
+[
+  {
+    "category": "CSS",
+    "difficulty": "medium",
+    "question": "Which CSS property specifies how flex items are laid out along the cross axis?",
+    "options": [
+      "justify-content",
+      "align-items",
+      "flex-direction",
+      "flex-flow"
+    ],
+    "correctIndex": 1,
+    "explanation": "align-items governs alignment on the cross axis, while justify-content operates on the main axis.",
+    "active": true
+  }
+]
